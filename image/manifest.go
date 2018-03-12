@@ -326,6 +326,15 @@ func unpackLayerEntry(dest string, header *tar.Header, reader io.Reader, entries
 	case tar.TypeXGlobalHeader:
 		return false, nil
 	}
-
+	if header.Typeflag != tar.TypeSymlink {
+		err = os.Chmod(path, info.Mode())
+		if err != nil {
+			return false, err
+		}
+		err = os.Chown(path, info.Sys().(*tar.Header).Uid, info.Sys().(*tar.Header).Gid)
+		if err != nil {
+			return false, err
+		}
+	}
 	return false, nil
 }
